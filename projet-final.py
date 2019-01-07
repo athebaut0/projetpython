@@ -7,9 +7,8 @@ import time
 root = Tk()  # initialisation d'une fenetre graphique
 
 # # Construction du cercle
-
 canvas = Canvas(root, width=600, height=600) 
-canvas.grid(row=3, column=1) 
+canvas.grid(row=5, column=1) 
 
 Xmax = 525
 Xmin = 25
@@ -21,19 +20,25 @@ circle = canvas.create_oval(Xmin, Ymin, Xmax, Ymax)
 # # On definit les variables necessaire a placer les points du cercle
 
 R = (Xmax - Xmin) / 2  # rayon du cercle
-
 a = (Xmax + Xmin) / 2  # milieu des abcisses
 b = (Ymax + Ymin) / 2  # milieu des ordonnees
 
-# # Liste pour  remplis
-
-# # points autour du cercle
-n_1 = 1 
+# # Modulo par défaut
 p_1 = 1
-    
+
+
+def estUnEntierNaturel(string):
+    """Fonction permet de savoir si un string est un entier naturel"""
+
+    try:
+        entier = int(string)
+        if entier <= 0:
+            return False
+        return True
+    except ValueError:
+        return False
     
 def points(modulo):
-    
     """Fonction qui place les points autour du cercle."""
     
     circle = canvas.create_oval(Xmin, Ymin, Xmax, Ymax)  # re-creation du cercle
@@ -66,8 +71,8 @@ def points(modulo):
 
 
 def traits(m, i):
-    
     """Fonction qui va tracer les traits entre les differents points du cercle."""
+    
     global lst_points_x
     global lst_points_y
     x_1 = lst_points_x[i] 
@@ -78,7 +83,6 @@ def traits(m, i):
 
 
 def mult_mod(n, p):
-    
     """Fonction qui effectue le calcul de la multiplication modulaire et rejoint 
         les differents points."""
     
@@ -91,75 +95,73 @@ def mult_mod(n, p):
 
 
 def modulo():
-    
     """Fonction qui calcule la table de a de 0 a n modulo p. Cette fonction 
         fait appel aux fonctions 'traits' et 'points'. """
-        
-    espaces = ' ' * 55
-    Label(root, text=espaces).grid(row=0, column=2)
-    Label(root, text=espaces).grid(row=1, column=2)
+    
+    # Suppression des messages d'erreurs s'ils existent
+    espaces = ' ' * 100
+    Label(root, text=espaces).grid(row=1, column=1)
+    Label(root, text=espaces).grid(row=3, column=1)
     
     generation_possible = True
     
-    if re.match("([0-9 ])", case_1.get()) is None:
-       label_table_non_entier = Label(root, text="la table doit etre un entier", bg="red", fg="white")
-       label_table_non_entier.grid(row=0, column=2)
+    if case_1 is None or not estUnEntierNaturel(case_1.get()):
+       label_table_non_entier = Label(root, text="la table doit etre un entier naturel non nul", bg="red", fg="white")
+       label_table_non_entier.grid(row=1, column=1)
        generation_possible = False
     
-    if re.match("([0-9 ])", case_2.get()) is None:
-       label_modulo_non_entier = Label(root, text="le modulo doit etre un entier", bg="red", fg="white")
-       label_modulo_non_entier.grid(row=1, column=2)
+    if case_2 is None or not estUnEntierNaturel(case_2.get()):
+       label_modulo_non_entier = Label(root, text="le modulo doit etre un entier naturel non nul", bg="red", fg="white")
+       label_modulo_non_entier.grid(row=3, column=1)
        generation_possible = False
        
     if generation_possible :
-        'canvas.delete("all")'  # On nettoie la fenetre
         n = int(case_1.get())  # la table
-        p = int(case_2.get())  # le modulo
-        global n_1 
+        p = int(case_2.get())   # le modulo
         global p_1 
-
-        for tab in range(n_1, n):
-            for mod in range(p_1, p):
+        
+        if p>=p_1 :
+            for mod in range(p_1, p + 1):
                 canvas.delete("all")
                 points(mod)  # place les points 
-                mult_mod(tab, mod)  # rejoint les points
+                mult_mod(n, mod)  # rejoint les points
                 canvas.update()
                 time.sleep(0.01)
-        
-        n_1 = int(case_1.get())
+        else: 
+            diff = p_1 - p # La difference des deux modules
+            for mod in range(1, diff+1):
+                canvas.delete("all")
+                points(p_1 -mod)  # place les points 
+                mult_mod(n, p_1 - mod)  # rejoint les points
+                canvas.update()
+                time.sleep(0.01)
+            
         p_1 = int(case_2.get())
 
         return n, p
-    
-    
-def Transition(n, p, n_1, p_1):
-    """Fonction qui permet la transition entre les differentes valeurs selectionnees. """
-    for i in range(n_1, n):
-        for j in range(p_1, p):
-            mult_mod(i, j)
-    
-    mult_mod(n, p)
-    'mult_mod(n, j)'
 
 
-'      root.mainloop()'
 
 # # Creation des cases pour choisir les differentes valeurs
-texte_1 = Label(root, text="table de : (2)")
+texte_1 = Label(root, text="Table de : ")
 texte_1.grid(row=0, column=0)
 
 case_1 = Entry(root)
-case_1.insert(END, "10")
+case_1.insert(END, "0")
 case_1.grid(row=0, column=1)
 
-texte_2 = Label(root, text="modulo : (6)")
-texte_2.grid(row=1, column=0)
+Label(root, text=' ').grid(row=1, column=1) # pour le message d'erreur
+
+texte_2 = Label(root, text="Modulo : ")
+texte_2.grid(row=2, column=0)
 
 case_2 = Entry(root)
-case_2.insert(END, "50")
-case_2.grid(row=1, column=1)
+case_2.insert(END, "0")
+case_2.grid(row=2, column=1)
+
+Label(root, text=' ').grid(row=3, column=1) # pour le message d'erreur
 
 boutton = Button(root, text="cliquez pour valider", command=modulo)  # en cliquant sur ce bouton on appele la fonction trait
-boutton.grid(row=2, column=0)
+boutton.grid(row=4, column=1)
 
 root.mainloop()  # affiche la fenetre graphique'
